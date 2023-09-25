@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+   
+    
+}
+
+
+
+
+header {
+    background-color: rgb(32, 31, 31);
+    color: white;
+    padding: 2px;
+    text-align: center;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    background-color: rgb(215, 231, 245);
+
+}
+
+.upper {
+    /* background: linear-gradient(to right, violet, skyblue, green); */
+    display: flex;
+    width: 80%;
+    justify-content: space-around;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.lower {
+    background-color: transparent;
+    display: flex;
+    
+    /* justify-content: space-between; */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    height: 200px;
+}
+
+.editor {
+    width: 70%;
+    flex: 1;
+    /* border: 1px solid #ccc; */
+    /* padding: 10px; */
+    height: 200px;
+}
+#editor {
+  width: 100%;
+  height: 100%;
+}
+
+.output {
+
+    flex: 1;
+    border: 1px solid #ccc;
+    
+    height: 200px;
+    overflow-y: scroll;
+    background-color: whitesmoke;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#languageSelect, #convertButton, #debugButton, #checkQualityButton {
+    padding: 10px 20px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    font-size: 20px;
+}
+
+#languageSelect:hover, #convertButton:hover, #debugButton:hover, #checkQualityButton:hover {
+    background-color: #444;
+}
+
+
+    </style>
+    <title>Code Converter</title>
+</head>
+<body>
+    <header>
+        <h2>Code Converter</h2>
+    </header>
+    <main>
+        <div class="lower">
+            <div class="editor" id="editor"></div>
+        </div>
+        <div class="upper">
+            <select id="languageSelect">
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="C++">C++</option>
+                <option value="php">php</option>
+                <option value="Go">Go</option>
+                <option value="Kotlin">Kotlin</option>
+            </select>
+            <button id="convertButton">Convert</button>
+            <button id="debugButton">Debug</button>
+            <button id="checkQualityButton">Check Quality</button>
+        </div>
+        <div class="lower">
+            
+            <div class="output" id="output"></div>
+        </div>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs/loader.js"></script>
+    <script>
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            // Initialize the code editor
+            const editor = monaco.editor.create(document.getElementById('editor'), {
+                value: '// Write your code here...',
+                language: 'javascript', // Default language
+                theme: 'vs-dark',
+            });
+
+            
+            let convertButton=document.getElementById("convertButton")
+            
+            convertButton.addEventListener("click",()=>{
+                
+                let code=monaco.editor.getModels()[0].getValue()
+                const languageSelect = document.getElementById("languageSelect").value;
+                fetch("https://codeconvertor-ze7d.onrender.com/code", {
+                    method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    code,
+                    languageSelect
+                })
+                })
+                .then((res) => res.json())
+                .then((data) =>{ 
+                    console.log(data.updatecode)
+                    document.getElementById("output").innerText=data.updatecode
+                })
+                .catch((error) => console.error("Error:", error));
+
+            })
+
+            let debugButton=document.getElementById("debugButton")
+            debugButton.addEventListener("click",()=>{
+                
+                let code=monaco.editor.getModels()[0].getValue()
+                fetch("https://codeconvertor-ze7d.onrender.com/code/debug", {
+                    method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    code
+                    
+                })
+                })
+                .then((res) => res.json())
+                .then((data) =>{ 
+                    console.log(data.updatecode)
+                    document.getElementById("output").innerText=data.updatecode
+                })
+                .catch((error) => console.error("Error:", error));
+            })
+
+            checkQualityButton=document.getElementById("checkQualityButton")
+            checkQualityButton.addEventListener("click",()=>{
+                
+                let code=monaco.editor.getModels()[0].getValue()
+                fetch("https://codeconvertor-ze7d.onrender.com/code/quality", {
+                    method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    code
+                    
+                })
+                })
+                .then((res) => res.json())
+                .then((data) =>{ 
+                    console.log(data.updatecode)
+                    document.getElementById("output").innerText=data.updatecode
+                })
+                .catch((error) => console.error("Error:", error));
+            })
+            // ... Rest of your button event listener code ...
+            
+
+            
+        })
+
+
+
+    </script>
+</body>
+</html>
